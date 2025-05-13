@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hangman Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+        #wordDisplay {
+            font-size: 2rem;
+            letter-spacing: 10px;
+            margin: 20px 0;
+        }
+        #message {
+            font-size: 1.2rem;
+            color: red;
+        }
+        #letters {
+            margin: 20px 0;
+        }
+        .letter {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 15px;
+            font-size: 1.5rem;
+            border: 1px solid #333;
+            cursor: pointer;
+            background-color: #fff;
+        }
+        .letter.disabled {
+            background-color: #ddd;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <h1>Hangman Game</h1>
+    <div id="wordDisplay">_ _ _ _ _</div>
+    <div id="message"></div>
+    <div id="letters"></div>
+    <script>
+        let word = ""; // The word to guess
+        const maxAttempts = 6;
+
+        let guessedLetters = [];
+        let attempts = 0;
+
+        const wordDisplay = document.getElementById("wordDisplay");
+        const message = document.getElementById("message");
+        const lettersDiv = document.getElementById("letters");
+
+        // Prompt the user for a word
+        function promptForWord() {
+            word = prompt("Enter a word for Hangman:").toUpperCase();
+            if (!word || word.trim() === "") {
+                alert("You must enter a valid word!");
+                promptForWord();
+            } else {
+                initializeGame();
+            }
+        }
+
+        // Initialize the game
+        function initializeGame() {
+            // Display the word with underscores
+            updateWordDisplay();
+
+            // Create letter buttons
+            for (let i = 65; i <= 90; i++) {
+                const letter = String.fromCharCode(i);
+                const button = document.createElement("button");
+                button.textContent = letter;
+                button.className = "letter";
+                button.addEventListener("click", () => handleGuess(letter, button));
+                lettersDiv.appendChild(button);
+            }
+        }
+
+        // Update the word display
+        function updateWordDisplay() {
+            const display = word
+                .split("")
+                .map((letter) => (guessedLetters.includes(letter) ? letter : "_"))
+                .join(" ");
+            wordDisplay.textContent = display;
+
+            // Check if the player has won
+            if (!display.includes("_")) {
+                message.textContent = "You Win!";
+                disableAllButtons();
+            }
+        }
+
+        // Handle a guessed letter
+        function handleGuess(letter, button) {
+            button.classList.add("disabled");
+            button.disabled = true;
+
+            if (word.includes(letter)) {
+                guessedLetters.push(letter);
+                updateWordDisplay();
+            } else {
+                attempts++;
+                if (attempts >= maxAttempts) {
+                    message.textContent = `Game Over! The word was: ${word}`;
+                    disableAllButtons();
+                }
+            }
+        }
+
+        // Disable all letter buttons
+        function disableAllButtons() {
+            const buttons = document.querySelectorAll(".letter");
+            buttons.forEach((button) => {
+                button.disabled = true;
+                button.classList.add("disabled");
+            });
+        }
+
+        // Start the game by prompting for a word
+        promptForWord();
+    </script>
+</body>
+</html>
